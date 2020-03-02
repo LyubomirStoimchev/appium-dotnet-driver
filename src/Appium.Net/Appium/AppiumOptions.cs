@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace OpenQA.Selenium.Appium
+﻿namespace OpenQA.Selenium.Appium
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using OpenQA.Selenium.Remote;
+
     /// <summary>
     /// Appium driver options
     /// </summary>
     public class AppiumOptions : DriverOptions
     {
-        
-        private const string CapabilityPrefix = "appium:";
-
-        private readonly Dictionary<string, object> _appiumOptions = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> appiumOptions = new Dictionary<string, object>();
 
         /// <summary>
         /// Provides a means to add additional capabilities not yet added as type safe options
@@ -31,7 +31,7 @@ namespace OpenQA.Selenium.Appium
         public void AddAdditionalAppiumOption(string optionName, object optionValue)
         {
             this.ValidateCapabilityName(optionName);
-            this._appiumOptions[optionName] = optionValue;
+            this.appiumOptions[optionName] = optionValue;
         }
 
         /// <summary>
@@ -87,19 +87,75 @@ namespace OpenQA.Selenium.Appium
         /// <returns>A desired capability</returns>
         public override ICapabilities ToCapabilities()
         {
-            IWritableCapabilities capabilities = this.GenerateDesiredCapabilities(false);
+            SetNonCompliantKnownCapabilities(appiumOptions.Keys.Where(x => !x.Contains(":")).ToList());
 
-            foreach (KeyValuePair<string, object> option in _appiumOptions)
+            var options = this.GenerateDesiredCapabilities(false);
+
+            // get capabilities field
+            var isFieldNull = options
+                .GetType()
+                .GetField("capabilities", BindingFlags.NonPublic | BindingFlags.Instance) == null;
+
+            Dictionary<string, object> cap = null;
+            if (isFieldNull)
             {
-                capabilities.SetCapability(string.Concat(CapabilityPrefix, option.Key), option.Value);
+                cap = (Dictionary<string, object>)options
+                    .GetType()
+                    .BaseType
+                    .GetField("capabilities", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetValue(options);
+            }
+            else
+            {
+                cap = (Dictionary<string, object>)options
+                    .GetType()
+                    .GetField("capabilities", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetValue(options);
             }
 
-            return capabilities.AsReadOnly();
+            // exit conditions
+            if (cap == null)
+            {
+                return options;
+            }
+
+            // add capabilities
+            foreach (var item in appiumOptions)
+            {
+                cap[item.Key] = item.Value;
+            }
+
+            return options;
         }
 
         public Dictionary<string, object> ToDictionary()
         {
-            return _appiumOptions;
+            return appiumOptions;
+        }
+
+        /// <summary>
+        /// Add custom capabilities as Known specification compliant capabilities.
+        /// This "disables" the removal of non spec compliant capabilities.
+        /// </summary>
+        /// <param name="caps"></param>
+        private void SetNonCompliantKnownCapabilities(List<string> caps)
+        {
+            FieldInfo field = typeof(CapabilityType).GetField("KnownSpecCompliantCapabilityNames",
+                BindingFlags.Static |
+                BindingFlags.NonPublic);
+
+            if (field == null)
+            {
+                return;
+            }
+
+            List<string> updatedKnownCapabilities = (List<string>)field.GetValue(null);
+
+            updatedKnownCapabilities.AddRange(caps);
+
+            updatedKnownCapabilities = updatedKnownCapabilities.Distinct().ToList();
+
+            field.SetValue(null, updatedKnownCapabilities);
         }
     }
 }
