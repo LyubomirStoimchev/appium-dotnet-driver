@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RootNamespace>OpenQA.Selenium</RootNamespace>
-    <AssemblyVersion>5.1.1</AssemblyVersion>
-    <Version>5.1.1</Version>
+    <AssemblyVersion>5.1.4</AssemblyVersion>
+    <Version>5.1.4</Version>
     <Company>Appium Commiters</Company>
     <Product>Appium-Dotnet-Driver</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -13,7 +13,7 @@
     <Copyright>Copyright © 2019</Copyright>
     <PackageProjectUrl>https://github.com/appium/appium-dotnet-driver</PackageProjectUrl>
     <RepositoryUrl>https://github.com/appium/appium-dotnet-driver</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <RepositoryType>Public</RepositoryType>
     <PackageId>Appium.WebDriver</PackageId>
     <Authors>Appium Commiters</Authors>
     <PackageIcon>appium-icon.png</PackageIcon>
@@ -23,7 +23,8 @@
 
   <PropertyGroup>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <FileVersion>5.1.1</FileVersion>
+    <FileVersion>5.1.4</FileVersion>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
