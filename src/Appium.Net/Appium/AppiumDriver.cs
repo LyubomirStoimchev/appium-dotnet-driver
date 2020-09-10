@@ -345,13 +345,6 @@ namespace OpenQA.Selenium.Appium
             => AppiumCommandExecutionHelper.HideKeyboard(executeMethod: this, strategy: strategy, key: key);
 
         /// <summary>
-        /// Whether or not the soft keyboard is shown.
-        /// </summary>
-        /// <returns>True if the keyboard is shown. (boolean)</returns>
-        public bool IsKeyboardShown()
-            => AppiumCommandExecutionHelper.IsKeyboardShown(executeMethod: this);
-
-        /// <summary>
         /// GPS Location
         /// </summary>
         public Location Location
@@ -686,7 +679,7 @@ namespace OpenQA.Selenium.Appium
 
         internal static ICapabilities SetPlatformToCapabilities(DriverOptions dc, string desiredPlatform)
         {
-            dc.AddAdditionalCapability(MobileCapabilityType.PlatformName, desiredPlatform);
+            dc.PlatformName = desiredPlatform;
             return dc.ToCapabilities();
         }
 
